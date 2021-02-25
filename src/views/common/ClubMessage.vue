@@ -8,26 +8,29 @@
           <el-table
             ref="deleteItems"
             :data="filterUnReadMessage.slice((currentPage - 1)*pageSize, currentPage*pageSize)"
-            :default-sort="{prop: 'date', order: 'descending'}"
+            :default-sort="{prop: 'releaseTime', order: 'descending'}"
             style="width: 100%"
+            @filter-change="fliterChange"
           >
-            <el-table-column type="selection" width="55" ></el-table-column>
-            <el-table-column label="日期" prop="date" sortable></el-table-column>
-            <el-table-column label="标题" prop="name"></el-table-column>
+            <el-table-column label="日期" prop="releaseTime" sortable></el-table-column>
+            <el-table-column label="标题" prop="title"></el-table-column>
             <el-table-column
-              prop="tag"
-              label="社团"
-              width="160"
-              :filters="[{ text: '行思工作室', value: '行思工作室' }, { text: '滑板协会', value: '滑板协会' }]"
+              prop="type"
+              label="消息类型"
+              width="100"
+              :filters="[{ text: '任务', value: '任务' }, { text: '通知', value: '通知' },  { text: '活动', value: '活动' }]"
               :filter-method="filterTag"
+              column-key="hosttype"
               filter-placement="bottom-end"
             >
               <template slot-scope="scope">
-                <el-tag :type="scope.row.tag === '滑板协会' ? 'primary' : 'success'">{{scope.row.tag}}</el-tag>
+                <el-tag
+                  :type="scope.row.type === '任务' ?'success' : (scope.row.type === '通知' ? 'info' : 'primary') "
+                >{{scope.row.type}}</el-tag>
               </template>
             </el-table-column>
             <el-table-column align="right">
-              <template slot="header"  slot-scope="scope">
+              <template slot="header" slot-scope="scope">
                 <el-input v-model="search" size="mini" placeholder="Type to search" />
               </template>
               <template slot-scope="scope">
@@ -50,167 +53,57 @@
             :page-size="pageSize"
             :current-page="currentPage"
           ></el-pagination>
-          <el-button
-            class="deleteAll"
-            size="mini"
-            type="danger"
-            @click="(scope.$index, scope.row)"
-          >批量删除</el-button>
+          <el-dialog :title="title" :visible.sync="isShownContent" width="55%" center>
+            <span v-html="content"></span>
+            <span slot="footer" class="dialog-footer"></span>
+          </el-dialog>
         </el-tab-pane>
-        <el-tab-pane label="已读消息" @click="addDelete">已读消息</el-tab-pane>
       </el-tabs>
     </el-main>
   </el-scrollbar>
 </template>
 
 <script>
+let moment = require("moment");
+import { reqClubMessages, reqDeletMessage } from "../../api/index";
 export default {
   data() {
     return {
+      isShownContent: false,
       currentPage: 1,
-      pageSize: 8,
-      unReadMessage: [
-        {
-          date: "2016-05-03",
-          name: "1012开会",
-          tag: "行思工作室"
-        },
-        {
-          date: "2016-05-02",
-          name: "选拔大赛",
-          tag: "滑板协会"
-        },
-        {
-          date: "2016-05-04",
-          name: "PPT大赛",
-          tag: "行思工作室"
-        },
-        {
-          date: "2016-05-01",
-          name: "圣诞节Merry活动",
-          tag: "行思工作室"
-        },
-        {
-          date: "2016-05-03",
-          name: "1012茶话会",
-          tag: "行思工作室"
-        },
-        {
-          date: "2016-05-02",
-          name: "选美",
-          tag: "行思工作室"
-        },
-        {
-          date: "2016-05-04",
-          name: "计算机程序设计大赛",
-          tag: "行思工作室"
-        },
-        {
-          date: "2016-05-01",
-          name: "ICPC-ACM",
-          tag: "行思工作室"
-        },
-        {
-          date: "2016-05-03",
-          name: "元旦联欢晚会",
-          tag: "滑板协会"
-        },
-        {
-          date: "2016-05-02",
-          name: "竞选",
-          tag: "行思工作室"
-        },
-        {
-          date: "2016-05-04",
-          name: "Java讲堂",
-          tag: "行思工作室"
-        },
-        {
-          date: "2016-05-01",
-          name: "人工智能讲座",
-          tag: "行思工作室"
-        },
-        {
-          date: "2016-05-03",
-          name: "滑板比赛",
-          tag: "滑板协会"
-        },
-        {
-          date: "2016-05-02",
-          name: "开会1502",
-          tag: "行思工作室"
-        },
-        {
-          date: "2016-05-04",
-          name: "互联网+",
-          tag: "行思工作室"
-        },
-        {
-          date: "2016-05-01",
-          name: "情侣配对",
-          tag: "行思工作室"
-        },
-        {
-          date: "2016-05-03",
-          name: "1012开会",
-          tag: "滑板协会"
-        },
-        {
-          date: "2016-05-02",
-          name: "选拔大赛",
-          tag: "行思工作室"
-        },
-        {
-          date: "2016-05-04",
-          name: "PPT大赛",
-          tag: "行思工作室"
-        },
-        {
-          date: "2016-05-01",
-          name: "圣诞节Merry活动",
-          tag: "行思工作室"
-        },
-        {
-          date: "2016-05-03",
-          name: "1012开会",
-          tag: "行思工作室"
-        },
-        {
-          date: "2016-05-02",
-          name: "选拔大赛",
-          tag: "行思工作室"
-        },
-        {
-          date: "2016-05-04",
-          name: "PPT大赛",
-          tag: "行思工作室"
-        },
-        {
-          date: "2016-05-01",
-          name: "圣诞节Merry活动",
-          tag: "行思工作室"
-        },
-        {
-          date: "2016-05-03",
-          name: "1012开会",
-          tag: "行思工作室"
-        },
-        {
-          date: "2016-05-02",
-          name: "选拔大赛",
-          tag: "行思工作室"
-        }
-      ],
-      deleteItems: [],
+      pageSize: 7,
+      clubMessages: [],
+      blist: [],
       search: "",
+      content: "",
+      title: ""
     };
   },
   methods: {
     handleEdit(index, row) {
-      console.log(index, row);
+      // console.log(index, row.content);
+      this.isShownContent = true;
+      this.content = row.content;
+      this.title = row.title;
     },
     handleDelete(index, row) {
-      console.log(index, row);
+      // console.log(index, row.messageId);
+      this.$confirm("一旦删除后不可恢复，是否删除？", "警告", {
+        confirmButtonText: "删除",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(async action => {
+          const result = await reqDeletMessage(row.messageId);
+          // console.log(result);
+          if (result.code == 1) {
+            this.$message.success("删除成功");
+            location.reload();
+          } else this.$message.error("删除失败");
+        })
+        .catch(action => {
+          this.$message.info("取消删除");
+        });
     },
     handleSizeChange(val) {
       this.pageSize = val;
@@ -224,28 +117,60 @@ export default {
     clearFilter() {
       this.$refs.filterTable.clearFilter();
     },
-    formatter(row, column) {
-      return row.address;
-    },
     filterTag(value, row) {
-      return row.tag === value;
+      return row.type === value;
     },
     filterHandler(value, row, column) {
       const property = column["property"];
       return row[property] === value;
     },
+    async getMessages() {
+      const { clubMessages } = this;
+      const typeList = { 1: "任务", 2: "通知", 3: "活动" };
+      const result = await reqClubMessages("1");
+      for (var i = 0; i < result.data.length; i++) {
+        result.data[i].releaseTime = moment(result.data[i].releaseTime).format(
+          "YYYY-MM-DD HH:mm:ss"
+        );
+        result.data[i].type = typeList[result.data[i].type];
+      }
+      this.clubMessages = result.data;
+      this.clubMessages = this.clubMessages.filter(function(e) {
+        return e.draftMark === false;
+      });
+      this.blist = this.clubMessages
+    },
     addDelete() {
-      console.log(this.$refs.deleteItems.selection)
+      console.log(this.$refs.deleteItems.selection);
+    },
+    fliterChange(filters) {
+      const filterskey = filters.hosttype;
+      // console.log(filterskey);
+      this.clubMessages = this.blist
+      if (filterskey.length > 0) {
+        this.clubMessages = this.clubMessages.filter(data => {
+          return (data["type"] === filterskey[0]) || (data["type"] === filterskey[1]) || (data["type"] === filterskey[2]);
+        });
+        // console.log(this.blist);
+        // this.clubMessages = this.blist;
+      } else {
+        this.clubMessages = this.blist;
+      }
     }
   },
   computed: {
     filterUnReadMessage() {
-      const {search, unReadMessage} = this
-      let fUnRead
-      fUnRead = unReadMessage.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))
-      console.log(fUnRead)
-      return fUnRead
+      const { search, clubMessages } = this;
+      let fUnRead;
+      fUnRead = clubMessages.filter(
+        data =>
+          !search || data.title.toLowerCase().includes(search.toLowerCase())
+      );
+      return fUnRead;
     }
+  },
+  async mounted() {
+    await this.getMessages();
   }
 };
 </script>

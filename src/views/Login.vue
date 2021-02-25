@@ -6,11 +6,11 @@
       <el-form :rules="rules" :model="login" ref="login">
         <el-form-item prop="userID">
           学号
-          <el-input v-model="login.userID" type="text" placeholder="邮箱或者用户名"></el-input>
+          <el-input v-model="login.userID" type="text" placeholder="邮箱或者用户名" clearable></el-input>
         </el-form-item>
         <el-form-item prop="passWord">
           密码
-          <el-input v-model="login.passWord" type="password" placeholder="密码" show-password/>
+          <el-input v-model="login.passWord" type="password" placeholder="密码" show-password />
         </el-form-item>
         <el-button class="log-btn" type="primary" @click="submitLog">登录</el-button>
       </el-form>
@@ -24,19 +24,19 @@
       <el-form :rules="rules" :model="register" ref="register">
         <el-form-item prop="userID">
           <span class="txt">学号</span>
-          <el-input v-model="register.userID" type="text" placeholder="学号" />
+          <el-input v-model="register.userID" type="text" placeholder="学号" clearable />
         </el-form-item>
         <el-form-item prop="userName">
           <span class="txt">用户名</span>
-          <el-input v-model="register.userName" type="text" placeholder="只能包含数字字母和下划线" />
+          <el-input v-model="register.userName" type="text" placeholder="只能包含数字字母和下划线" clearable />
         </el-form-item>
         <el-form-item prop="passWord1">
           <span class="txt">密码</span>
-          <el-input v-model="register.passWord1" type="password" placeholder="密码" show-password/>
+          <el-input v-model="register.passWord1" type="password" placeholder="密码" show-password />
         </el-form-item>
         <el-form-item prop="passWord2">
           <span class="txt">再次输入密码</span>
-          <el-input v-model="register.passWord2" type="password" placeholder="密码" show-password/>
+          <el-input v-model="register.passWord2" type="password" placeholder="密码" show-password />
         </el-form-item>
         <el-button class="log-btn" type="primary" @click="submitReg">注册</el-button>
       </el-form>
@@ -49,9 +49,11 @@
 </template>
 
 <script>
+import { reqLogin, reqRegister, reqUserInfo } from "../api/index.js";
 export default {
   data: function() {
     var checkID = (rule, value, callback) => {
+      if (value === "admin") return callback();
       const idReg = /^[1-9][0-9]*$/;
       if (!value) {
         return callback(new Error("学号不能为空"));
@@ -62,16 +64,15 @@ export default {
       return callback();
     };
     var checkPW = (rule, value, callback) => {
-      console.log(value, this.register.passWord1);
+      // console.log(value, this.register.passWord1);
       if (value !== this.register.passWord1) {
         return callback(new Error("两次输入的密码不一致"));
       }
+      return callback();
     };
     return {
       register: {
         userID: "",
-        eMail: "",
-        phone: "",
         passWord1: "",
         passWord2: "",
         userName: ""
@@ -83,99 +84,52 @@ export default {
       isLogin: true,
       rules: {
         userID: [
-          {
-            required: true,
-            message: "请输入学号",
-            trigger: "blur"
-          },
-          {
-            validator: checkID,
-            trigger: "blur"
-          },
-          {
-            min: 6,
-            max: 15,
-            message: "请输入合法的学号",
-            trigger: "blur"
-          }
+          { required: true, message: "请输入学号", trigger: "blur" },
+          { validator: checkID, trigger: "blur" },
+          { min: 5, max: 15, message: "请输入合法的学号", trigger: "blur" }
         ],
         userName: [
-          {
-            required: true,
-            message: "请输入用户名",
-            trigger: "blur"
-          }
+          { required: true, message: "请输入用户名", trigger: "blur" }
         ],
-        passWord: [
-          {
-            required: true,
-            message: "请输入密码",
-            trigger: "blur"
-          }
-        ],
-        passWord1: [
-          {
-            required: true,
-            message: "请输入密码",
-            trigger: "blur"
-          }
-        ],
+        passWord: [{ required: true, message: "请输入密码", trigger: "blur" }],
+        passWord1: [{ required: true, message: "请输入密码", trigger: "blur" }],
         passWord2: [
-          {
-            required: true,
-            message: "请输入密码",
-            trigger: "blur"
-          },
-          {
-            validator: checkPW,
-            trigger: "blur"
-          }
+          { required: true, message: "请输入密码", trigger: "blur" },
+          { validator: checkPW, trigger: "blur" }
         ]
       }
     };
   },
   methods: {
     submitLog() {
-      // this.$router.push({path:'/home'})
-      this.$refs.login.validate(valid => {
+      const { login } = this;
+      this.$refs.login.validate(async valid => {
         if (!valid) return;
-        this.$router.push({path:'/home'})
-      })
+        const result = await reqLogin(login.userID, login.passWord);
+        console.log(result);
+        if (result.code === 1) {
+          // console.log(this.$store.state.userInfo.userInfo)
+          this.$router.push({ path: "/home" });
+        } else {
+          const msg = result.msg;
+          this.$message.warning(result.msg);
+        }
+      });
     },
     submitReg() {
-      this.$refs.register.validate(vaild => {
-        console.log(valid)
-        if (vaild) {
-          let flag = 0;
-          this.$axios
-            .post("/user", {
-              userID: this.reg.userID
-            })
-            .then(response => {
-              if (response.data != null) {
-                this.$message.error("该用户已存在");
-                flag = 1;
-              }
-            });
-          if (flag === 0) {
-            let date = new Date().getTime();
-            this.$axios
-              .post("/users", {
-                userID: this.reg.userID,
-                password: this.reg.password1,
-                userLogo: this.reg.userLogo,
-                regtime: date
-              })
-              .then(response => {
-                if (response.status === 200) {
-                  this.regVisible = false;
-                  this.$message.success("注册成功");
-                }
-              })
-              .catch(function(error) {});
-          }
+      const { register, isLogin } = this;
+      this.$refs.register.validate(async valid => {
+        if (!valid) return;
+        const result = await reqRegister(
+          register.userID,
+          register.userName,
+          register.passWord1
+        );
+        if (result.code === 1) {
+          this.$message.success(result.msg);
+          this.isLogin = true;
         } else {
-          return false;
+          this.$message.warning(result.msg);
         }
       });
     },

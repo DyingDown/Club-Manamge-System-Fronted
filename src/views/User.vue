@@ -14,13 +14,13 @@
           active-text-color="#ffd04b"
         >
           <el-menu-item index="2">
-            <el-avatar :size="35" :src="circleUrl"></el-avatar>
+            <el-avatar :size="40" :src="circleUrl"></el-avatar>
           </el-menu-item>
           <el-submenu index="3">
             <template slot="title">
-              <el-badge :is-dot="messageNum" class="item">{{userName}}</el-badge>
+              <el-badge :is-dot="messageNum > 0 ? true: false" class="item">{{userInfo.nickname}}</el-badge>
             </template>
-            <el-menu-item index="3-1">我的社团</el-menu-item>
+            <el-menu-item index="changepassword" @click="toPage('/changepassword')">修改密码</el-menu-item>
             <el-menu-item index="profile" @click="toPage('/profile')">个人中心</el-menu-item>
             <el-menu-item index="message" @click="toPage('/message')">
               <el-badge :value="messageNum" :max="99" class="badge_number">我的消息</el-badge>
@@ -101,6 +101,11 @@
               <el-menu-item index="createclub" @click="toPage('/createclub')">新建</el-menu-item>
               <!-- </el-menu-item-group> -->
             </el-submenu>
+            
+            <el-menu-item index="home" @click="toPage('/clubmanagement')">
+              <i class="el-icon-s-tools"></i>
+              <span>社团管理</span>
+            </el-menu-item>
           </el-menu>
           <!-- </el-col> -->
         </el-row>
@@ -108,21 +113,24 @@
       <!-- <el-main>
         <div></div>
       </el-main>-->
-      <router-view />
+      <router-view v-if="dataReady"/>
     </el-container>
   </el-container>
 </template>
 
 <script>
+import {mapState} from 'vuex'
+import {reqUserInfo, reqIsLogged, reqGetImage, reqGetUserMessage} from "../api/index.js";
 export default {
   data() {
     return {
+      dataReady: false,
       activeIndex: "",
       currentFunc: "UserInfo",
       userType: "社长",
       messageNum: 10,
       userName: "John Doe",
-      circleUrl: require("@/assets/user.png"),
+      circleUrl: "",
       myClubs: [
         {
           clubName: "行思工作室",
@@ -140,18 +148,44 @@ export default {
       return key + '-' + key1;
     },
     toPage(paths, sub = "") {
-      if(sub != "")
+      if(sub !== "")
         this.$router.push({ path: paths + `?club=${sub}` });
       else
         this.$router.push({ path: paths });
+    },
+    async isLogged() {
+      const result = await reqIsLogged()
+      console.log(result)
+      if(result.code === 1) {
+        this.$store.state.userInfo.userId = result.data
+        const userinfo = await reqUserInfo(result.data)
+        // console.log(userinfo.data)
+        this.$store.dispatch("recordUser", userinfo.data);
+        if(this.$store.state.userInfo.avatarId == null) this.$store.state.userInfo.avatarId = 26
+        this.circleUrl = 'http://localhost:8080/api/image/'+this.$store.state.userInfo.avatarId
+        const messageNums = await reqGetUserMessage()
+        this.$store.dispatch('recordUserMessage', messageNums.data);
+        let unRead = messageNums.data.filter(function(e) {
+        return e.readTime === null;
+      });
+        this.messageNum = unRead.length
+        // location.reload()
+        // console.log(this.$store.state.userInfo.realname)
+      } else {
+        this.$router.replace({ path: "/login" });
+      }
     }
   },
-  mounted() {
+  async mounted() {
+    await this.isLogged()
     this.activeIndex = window.location.href.split("/")[3].split("?")[0];
     if (window.location.href.split("=").length != 1) {
       this.activeIndex += '-' + decodeURI(window.location.href.split("=")[1]);
     }
-    console.log(this.activeIndex)
+    this.dataReady = true
+  },
+  computed: {
+    ...mapState(['userInfo'])
   }
 };
 </script>

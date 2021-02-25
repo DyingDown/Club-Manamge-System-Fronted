@@ -5,8 +5,28 @@
       <el-divider></el-divider>
       <el-form :rules="rules" ref="userInfo" :model="userInfo" label-width="80px">
         <h3>基本信息</h3>
+        <el-form-item>
+          <el-avatar :size="125" :src="imgDataUrl"></el-avatar>
+          <br />
+          <el-button type="primary" @click="toggleShow">上传头像</el-button>
+          <my-upload
+            field="img"
+            @crop-success="cropSuccess"
+            @crop-upload-success="cropUploadSuccess"
+            @crop-upload-fail="cropUploadFail"
+            v-model="show"
+            :width="300"
+            :height="300"
+            url="/api/image"
+            img-format="png"
+          ></my-upload>
+        </el-form-item>
+
         <el-form-item label="昵称">
-          <el-input class="username" v-model="userInfo.userName"></el-input>
+          <el-input class="username" v-model="userInfo.nickname"></el-input>
+        </el-form-item>
+        <el-form-item label="真实姓名">
+          <el-input class="username" v-model="userInfo.realname"></el-input>
         </el-form-item>
         <el-form-item label="性别">
           <el-radio-group v-model="userInfo.sex">
@@ -16,28 +36,28 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="专业">
-          <el-select placeholder="请选择你的专业" v-model="userInfo.major">
-            <el-option label="安全科学与工程" value="1"></el-option>
-            <el-option label="财经" value="2"></el-option>
-            <el-option label="测绘" value="3"></el-option>
-            <el-option label="电气工程及其自动化" value="4"></el-option>
-            <el-option label="工商管理" value="5"></el-option>
-            <el-option label="体育" value="6"></el-option>
-            <el-option label="建筑与艺术设计" value="7"></el-option>
-            <el-option label="计算机科学与技术" value="8"></el-option>
-            <el-option label="数学与信息科学" value="9"></el-option>
-            <el-option label="能源科学与工程" value="10"></el-option>
-            <el-option label="物理与电子信息" value="11"></el-option>
-            <el-option label="土木工程" value="12"></el-option>
-            <el-option label="外国语" value="13"></el-option>
-            <el-option label="材料科学与工程" value="14"></el-option>
-            <el-option label="机械与动力工程" value="15"></el-option>
-            <el-option label="应急管理" value="16"></el-option>
-            <el-option label="医学" value="17"></el-option>
-            <el-option label="音乐" value="18"></el-option>
-            <el-option label="资源环境" value="19"></el-option>
-            <el-option label="化学化工" value="20"></el-option>
-            <el-option label="文法" value="21"></el-option>
+          <el-select placeholder="请选择你的专业" v-model="userInfo.profession">
+            <el-option label="安全科学与工程" :value="1"></el-option>
+            <el-option label="财经" :value="2"></el-option>
+            <el-option label="测绘" :value="3"></el-option>
+            <el-option label="电气工程及其自动化" :value="4"></el-option>
+            <el-option label="工商管理" :value="5"></el-option>
+            <el-option label="体育" :value="6"></el-option>
+            <el-option label="建筑与艺术设计" :value="7"></el-option>
+            <el-option label="计算机科学与技术" :value="8"></el-option>
+            <el-option label="数学与信息科学" :value="9"></el-option>
+            <el-option label="能源科学与工程" :value="10"></el-option>
+            <el-option label="物理与电子信息" :value="11"></el-option>
+            <el-option label="土木工程" :value="12"></el-option>
+            <el-option label="外国语" :value="13"></el-option>
+            <el-option label="材料科学与工程" :value="14"></el-option>
+            <el-option label="机械与动力工程" :value="15"></el-option>
+            <el-option label="应急管理" :value="16"></el-option>
+            <el-option label="医学" :value="17"></el-option>
+            <el-option label="音乐" :value="18"></el-option>
+            <el-option label="资源环境" :value="19"></el-option>
+            <el-option label="化学化工" :value="20"></el-option>
+            <el-option label="文法" :value="21"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="入学日期">
@@ -53,26 +73,16 @@
         <el-form-item label="毕业日期">
           <el-col :span="8">
             <el-date-picker
-              v-model="userInfo.graduateDate"
+              v-model="userInfo.graduationDate"
               type="date"
               placeholder="选择一个日期"
               style="width: 100%;"
             ></el-date-picker>
           </el-col>
         </el-form-item>
-        <!-- <el-form-item label="Instant delivery">
-        <el-switch ></el-switch>
-        </el-form-item>-->
-        <!-- <el-form-item label="Activity type">
-        <el-checkbox-group>
-          <el-checkbox label="Online activities" name="type"></el-checkbox>
-          <el-checkbox label="Promotion activities" name="type"></el-checkbox>
-          <el-checkbox label="Offline activities" name="type"></el-checkbox>
-          <el-checkbox label="Simple brand exposure" name="type"></el-checkbox>
-        </el-checkbox-group>
-        </el-form-item>-->
+        {{userInfo.graduateDate}}
         <el-form-item label="个人简介">
-          <el-input type="textarea" v-model="userInfo.intro"></el-input>
+          <el-input type="textarea" v-model="userInfo.introduction"></el-input>
         </el-form-item>
         <h3>联系方式</h3>
         <el-form-item label="邮箱" prop="email">
@@ -84,18 +94,8 @@
         <el-form-item label="QQ" prop="qq">
           <el-input class="username" v-model="userInfo.qq"></el-input>
         </el-form-item>
-        <!-- <h3>登录密码</h3>
-        <el-form-item label="原密码" prop="originPassWord">
-          <el-input class="username" v-model="userInfo.originPassWord" type="password"></el-input>
-        </el-form-item>
-        <el-form-item label="新密码" prop="newPw1">
-          <el-input class="username" v-model="userInfo.newPw1" type="password"></el-input>
-        </el-form-item>
-        <el-form-item label="再次输入" prop="newPw2">
-          <el-input class="username" v-model="userInfo.newPw2" type="password"></el-input>
-        </el-form-item>-->
         <el-form-item>
-          <el-button type="primary">保存</el-button>
+          <el-button type="primary" @click="saveUserInfo">保存</el-button>
         </el-form-item>
       </el-form>
     </el-main>
@@ -103,9 +103,15 @@
 </template>
 
 <script>
+import myUpload from "vue-image-crop-upload";
+import { reqMUserInfo } from "../../api/index";
 export default {
+  components: {
+    "my-upload": myUpload
+  },
   data: function() {
     var checkPhone = (rule, value, callback) => {
+      if(value === null) return callback();
       const phoneReg = /^1[3|4|5|6|7|8][0-9]{9}$/;
       if (!phoneReg.test(value) && value != "") {
         callback(new Error("电话号码格式不正确"));
@@ -113,6 +119,7 @@ export default {
       callback();
     };
     var checkQQ = (rule, value, callback) => {
+      if(value == null)  return callback();
       const qqReg = /[1-9][0-9]{4,}/;
       if (qqReg.test(value) || value == "") {
         callback();
@@ -121,6 +128,7 @@ export default {
       }
     };
     var checkMail = (rule, value, callback) => {
+      if(value == null) return callback();
       var reg = /^[A-Za-z0-9_-\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
       if (!reg.test(value) && value !== "") {
         callback(new Error("请输入有效的邮箱"));
@@ -132,36 +140,79 @@ export default {
         return callback(new Error("两次输入的密码不一致"));
       }
     };
-    var checkOriginPW = (rule, value, callback) => {
-      if (value !== this.userInfo.passWord) {
-        return callback(new Error("与原密码不一致"));
-      }
-    };
     return {
+      show: false,
+      imgDataUrl: 'http://localhost:8080/api/image/'+this.$store.state.userInfo.avatarId,
       userInfo: {
-        userName: "John Doe",
-        sex: "保密",
-        enrollmentDate: "",
-        graduateDate: "",
-        major: "",
-        intro: "",
-        tel: "",
-        qq: "",
-        passWord: "",
-        originPassWord: "",
-        newPw1: "",
-        newPw2: ""
+        nickname: this.$store.state.userInfo.nickname,
+        realname: this.$store.state.userInfo.realname,
+        sex: this.$store.state.userInfo.sex,
+        enrollmentDate: this.$store.state.userInfo.enrollmentDate,
+        graduationDate: this.$store.state.userInfo.graduationDate,
+        profession: this.$store.state.userInfo.profession,
+        introduction: this.$store.state.userInfo.introduction,
+        tel: this.$store.state.userInfo.tel,
+        qq: this.$store.state.userInfo.qq,
+        email: this.$store.state.userInfo.email,
+        userId: this.$store.state.userInfo.userId,
+        avatarId: ""
       },
       rules: {
-        newPw2: [{ validator: checkPW, trigger: "blur" }],
-        originPassWord: [{ validator: checkOriginPW, trigger: "blur" }],
-        email: [{ validator: checkMail, trigger: "blur" }],
-        tel: [{ validator: checkPhone, trigger: "blur" }],
-        qq: [{ validator: checkQQ, trigger: "blur" }]
+        email: [{ validator: checkMail, trigger: "blur", required: false}],
+        tel: [{ validator: checkPhone, trigger: "blur", required: false }],
+        qq: [{ validator: checkQQ, trigger: "blur", required: false }]
       }
     };
   },
-  methods: {}
+  methods: {
+    toggleShow() {
+      this.show = !this.show;
+    },
+    cropSuccess(imgDataUrl, field) {
+      console.log("-------- crop success --------");
+      this.imgDataUrl = imgDataUrl;
+    },
+    cropUploadSuccess(jsonData, field) {
+      console.log("-------- upload success --------");
+      console.log(jsonData);
+      this.userInfo.avatarId = jsonData.data
+      console.log("field: " + field);
+    },
+    cropUploadFail(status, field) {
+      console.log("-------- upload fail --------");
+      console.log(status);
+      console.log("field: " + field);
+    },
+    async saveUserInfo() {
+      const { userInfo } = this;
+      this.$refs.userInfo.validate(async valid => {
+        if (!valid) {
+          this.$message.error("信息输入有误")
+          return;
+        } 
+        const result = await reqMUserInfo(
+          userInfo.userId,
+          userInfo.nickname,
+          userInfo.realname,
+          userInfo.sex,
+          userInfo.enrollmentDate,
+          userInfo.graduateDate,
+          userInfo.avatarId,
+          userInfo.profession,
+          userInfo.email,
+          userInfo.tel,
+          userInfo.qq,
+          userInfo.introduction
+        );
+        if (result.code === 1) {
+          this.$message.success(result.msg);
+        } else {
+          this.$message.error("保存失败");
+        }
+        this.$router.go(0);
+      });
+    }
+  }
 };
 </script>
 
@@ -177,5 +228,9 @@ export default {
 
 .username {
   width: 250px;
+}
+
+.el-avatar {
+  border: solid 1px lightgray;
 }
 </style>

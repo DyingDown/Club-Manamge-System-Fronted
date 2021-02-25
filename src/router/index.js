@@ -72,6 +72,16 @@ const router = new VueRouter({
                     path: '/allclubs',
                     component: () =>
                         import ("../views/common/AllClubs.vue")
+                },
+                {
+                    path: '/changepassword',
+                    component: () =>
+                        import ("../views/common/ChangePW.vue")
+                },
+                {
+                    path: '/clubmanagement',
+                    component: () =>
+                        import ("../views/common/ClubManagement.vue")
                 }
             ]
 

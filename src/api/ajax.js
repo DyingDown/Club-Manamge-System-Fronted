@@ -3,7 +3,9 @@
  * 返回值：promise对象(异步返回的数据是：response.data)
  */
 import axios from 'axios'
+
 export default function ajax(url, data = {}, type = 'GET') {
+    // console.log(data)
     return new Promise(function(resolve, reject) {
         let promise
         if (type === 'GET') {
@@ -16,8 +18,12 @@ export default function ajax(url, data = {}, type = 'GET') {
                 url = url + '?' + dataStr
             }
             promise = axios.get(url)
-        } else {
+        } else if (type === 'POST') {
             promise = axios.post(url, data)
+        } else if (type === 'PUT') {
+            promise = axios.put(url, data)
+        } else if (type == 'DELETE') {
+            promise = axios.delete(url, data)
         }
         promise.then(function(response) {
             resolve(response.data)
