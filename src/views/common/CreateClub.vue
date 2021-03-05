@@ -80,21 +80,21 @@
             <el-input
               type="textarea"
               v-model="newClubInfo.descriptionInfo.coreValue"
-              placeholder="100字以上500字以下"
+              placeholder="100字以上400字以下"
             ></el-input>
           </el-form-item>
           <el-form-item label="主要活动计划" prop="descriptionInfo.plans">
             <el-input
               type="textarea"
               v-model="newClubInfo.descriptionInfo.plans"
-              placeholder="100字以上500字以下"
+              placeholder="100字以上400字以下"
             ></el-input>
           </el-form-item>
           <el-form-item label="可行性分析" prop="descriptionInfo.practicalityAnalysis">
             <el-input
               type="textarea"
               v-model="newClubInfo.descriptionInfo.practicalityAnalysis"
-              placeholder="100字以上500字以下"
+              placeholder="100字以上400字以下"
             ></el-input>
           </el-form-item>
         </el-form>
@@ -134,7 +134,7 @@
             <el-input
               type="textarea"
               v-model="newClubInfo.descriptionInfo.introduction"
-              placeholder="100字以上500字以下"
+              placeholder="100字以上400字以下"
             ></el-input>
           </el-form-item>
           <el-form-item>
@@ -206,7 +206,7 @@ export default {
     var checkTxt = (rule, value, callback) => {
       if(value === undefined) callback(new Error("请填写"))
       else if (value.length < 10) callback(new Error("内容少于10字"));
-      else if (value.length > 500) callback(new Error("内容多余500字"));
+      else if (value.length > 400) callback(new Error("内容多余400字"));
       callback();
     };
     return {
@@ -289,7 +289,7 @@ export default {
     },
     saveApply() {
       this.$confirm(
-        "提交后，个人信息将会自动更新，并且无法修改，是否确认提交？",
+        "提交后，无法修改，并且个人信息将会自动更新，是否确认提交？",
         "警告",
         {
           confirmButtonText: "提交",

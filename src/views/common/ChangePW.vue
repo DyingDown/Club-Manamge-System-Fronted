@@ -76,23 +76,14 @@ export default {
       const { userInfo } = this;
       this.$refs.userInfo.validate(async valid => {
         if (!valid) {
-          this.$message.error("信息输入有误")
+          this.$message.error("信息输入有误");
           return;
         }
-        const isRealPW = await reqUserInfo(this.$store.state.userInfo.userId);
-        if (userInfo.originalPW === isRealPW.data.password) {
-          const result = await reqChangePW(
-            this.$store.state.userInfo.userId,
-            userInfo.newPW
-          );
-          if (result.code == 1) {
-            this.$message.success(result.msg)
-          } else {
-            this.$message.error(result.msg)
-            return;
-          }
+        const result = await reqChangePW(this.userInfo.originalPW, this.userInfo.newPW);
+        if (result.code == 1) {
+          this.$message.success(result.msg);
         } else {
-          this.$message.error("原密码输入错误")
+          this.$message.error(result.msg);
           return;
         }
       });

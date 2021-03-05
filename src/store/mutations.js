@@ -5,7 +5,8 @@ import {
     RECEIVE_USERINFO,
     CURRENT_EDIT_MESSAGE,
     USER_MESSAGES,
-    CURRENT_EDIT_CLUB
+    CURRENT_EDIT_CLUB,
+    MY_JOINED_CLUBS
 } from './mutation-types'
 
 export default {
@@ -20,5 +21,8 @@ export default {
     },
     [CURRENT_EDIT_CLUB](state, clubInfo) {
         state.currentEditClub = clubInfo
+    },
+    [MY_JOINED_CLUBS](state, myclubs) {
+        state.myClubs = myclubs
     }
 }

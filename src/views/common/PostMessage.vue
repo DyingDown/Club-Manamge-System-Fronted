@@ -152,9 +152,7 @@ export default {
         this.$message.error(errmsg);
       } else {
         let result;
-        console.log(this.isModify)
         if (this.isModify == true) {
-          console.log(type)
           const typeList = { "任务": 1, "通知" : 2, "活动": 3 };
           this.type = typeList[type];
           result = await reqModifyDraft(

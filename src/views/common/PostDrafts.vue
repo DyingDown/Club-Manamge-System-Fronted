@@ -55,9 +55,7 @@ export default {
   },
   methods: {
     handleEdit(index, row) {
-      // console.log(index, row);
       this.$store.dispatch("recordEditMessage", row);
-      // console.log(this.$store.state.currentEditMessage)
       this.$router.push({ path: "/postmessage?club_id=1" });
     },
     async handleRelease(index, row) {
@@ -68,7 +66,6 @@ export default {
       })
         .then(async action => {
           const result = await reqPostDraft(row.messageId, false);
-          // console.log(result);
           if (result.code == 1) {
             this.$message.success("发布成功");
             location.reload();
@@ -86,7 +83,6 @@ export default {
       })
         .then(async action => {
           const result = await reqDeletMessage(row.messageId);
-          // console.log(result);
           if (result.code == 1) {
             this.$message.success("删除成功");
             location.reload();

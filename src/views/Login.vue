@@ -64,7 +64,6 @@ export default {
       return callback();
     };
     var checkPW = (rule, value, callback) => {
-      // console.log(value, this.register.passWord1);
       if (value !== this.register.passWord1) {
         return callback(new Error("两次输入的密码不一致"));
       }
@@ -106,9 +105,7 @@ export default {
       this.$refs.login.validate(async valid => {
         if (!valid) return;
         const result = await reqLogin(login.userID, login.passWord);
-        console.log(result);
         if (result.code === 1) {
-          // console.log(this.$store.state.userInfo.userInfo)
           this.$router.push({ path: "/home" });
         } else {
           const msg = result.msg;

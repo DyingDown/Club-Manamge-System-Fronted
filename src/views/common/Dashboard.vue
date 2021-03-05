@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { reqGetUserMessage, reqGetMesssageDetail } from "../../api/index";
+import { reqGetUserMessage, reqGetMesssageDetail, reqLoginData } from "../../api/index";
 let moment = require("moment");
 export default {
   data: function() {
@@ -45,15 +45,15 @@ export default {
       loginDate: [
         {
           name: "登录时间：",
-          key: "2021-01-12"
+          key: ""
         },
         {
           name: "IP地址：",
-          key: "12.456.545"
+          key: ""
         },
         {
           name: "登录设备：",
-          key: "Chrome-87.0.4280.141"
+          key: ""
         }
       ],
       unReadMessage: []
@@ -63,14 +63,14 @@ export default {
     async getMessages() {
       const { unReadMessage } = this;
       var result;
-      console.log(this.$store.state.userMessages)
       if(this.$store.state.userMessages.length === undefined){
-        result = await reqGetUserMessage().data.length;
+        result = await reqGetUserMessage().data;
       } else {
         result = this.$store.state.userMessages
       }
+      result = result.filter(data => data.readTime == null)
       for (var i = 0; i < result.length; i++) {
-        if (result[i].readTime !== null) {
+        if (result[i].readTime === null) {
           let id = result[i].messageId;
           let detail = await reqGetMesssageDetail(id);
             detail.data.releaseTime = moment(detail.data.releaseTime).format(
@@ -79,6 +79,13 @@ export default {
           this.unReadMessage.push(detail.data);
         }
       }
+      let logindata = await reqLoginData(this.$store.state.userInfo.userId)
+      this.loginDate[0].key = moment(logindata[0].time).format(
+              "YYYY-MM-DD HH:SS:MM"
+            );
+      console.log(logindata)
+      this.loginDate[1].key = logindata[0].ip
+      this.loginDate[2].key = logindata[0].device
     }
   },
   async mounted() {

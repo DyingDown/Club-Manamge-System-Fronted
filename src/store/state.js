@@ -23,5 +23,6 @@ export default {
     currentEditClub: {
         progress: 0,
         avatarId: 25
-    }
+    },
+    myClubs: {}
 }

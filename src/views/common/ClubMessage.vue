@@ -4,7 +4,7 @@
       <div content="消息列表">消息列表</div>
       <el-divider></el-divider>
       <el-tabs type="border-card">
-        <el-tab-pane label="未读消息">
+        <el-tab-pane label="消息列表">
           <el-table
             ref="deleteItems"
             :data="filterUnReadMessage.slice((currentPage - 1)*pageSize, currentPage*pageSize)"
@@ -81,13 +81,11 @@ export default {
   },
   methods: {
     handleEdit(index, row) {
-      // console.log(index, row.content);
       this.isShownContent = true;
       this.content = row.content;
       this.title = row.title;
     },
     handleDelete(index, row) {
-      // console.log(index, row.messageId);
       this.$confirm("一旦删除后不可恢复，是否删除？", "警告", {
         confirmButtonText: "删除",
         cancelButtonText: "取消",
@@ -95,7 +93,6 @@ export default {
       })
         .then(async action => {
           const result = await reqDeletMessage(row.messageId);
-          // console.log(result);
           if (result.code == 1) {
             this.$message.success("删除成功");
             location.reload();
@@ -127,7 +124,7 @@ export default {
     async getMessages() {
       const { clubMessages } = this;
       const typeList = { 1: "任务", 2: "通知", 3: "活动" };
-      const result = await reqClubMessages("1");
+      const result = await reqClubMessages(window.location.href.split("=")[1]);
       for (var i = 0; i < result.data.length; i++) {
         result.data[i].releaseTime = moment(result.data[i].releaseTime).format(
           "YYYY-MM-DD HH:mm:ss"
@@ -144,14 +141,13 @@ export default {
       console.log(this.$refs.deleteItems.selection);
     },
     fliterChange(filters) {
+      console.log(filters)
       const filterskey = filters.hosttype;
-      // console.log(filterskey);
       this.clubMessages = this.blist
       if (filterskey.length > 0) {
         this.clubMessages = this.clubMessages.filter(data => {
           return (data["type"] === filterskey[0]) || (data["type"] === filterskey[1]) || (data["type"] === filterskey[2]);
         });
-        // console.log(this.blist);
         // this.clubMessages = this.blist;
       } else {
         this.clubMessages = this.blist;

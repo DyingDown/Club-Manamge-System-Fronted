@@ -25,14 +25,13 @@
         <el-form-item label="昵称">
           <el-input class="username" v-model="userInfo.nickname"></el-input>
         </el-form-item>
-        <el-form-item label="真实姓名">
+        <el-form-item label="真实姓名" prop="realname">
           <el-input class="username" v-model="userInfo.realname"></el-input>
         </el-form-item>
         <el-form-item label="性别">
           <el-radio-group v-model="userInfo.sex">
             <el-radio label="女"></el-radio>
             <el-radio label="男"></el-radio>
-            <el-radio label="保密"></el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="专业">
@@ -127,6 +126,12 @@ export default {
         callback(new Error("QQ号码格式不正确"));
       }
     };
+    var checkPeopleName = (rule, value, callback) => {
+      var reg = /^[\u4E00-\u9FA5]+$/;
+      // if (value === "") callback(new Error("请输申请人姓名"));
+      if (!reg.test(value)) callback(new Error("非法姓名"));
+      callback();
+    };
     var checkMail = (rule, value, callback) => {
       if(value == null) return callback();
       var reg = /^[A-Za-z0-9_-\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
@@ -160,7 +165,8 @@ export default {
       rules: {
         email: [{ validator: checkMail, trigger: "blur", required: false}],
         tel: [{ validator: checkPhone, trigger: "blur", required: false }],
-        qq: [{ validator: checkQQ, trigger: "blur", required: false }]
+        qq: [{ validator: checkQQ, trigger: "blur", required: false }],
+        realname: [{ validator: checkPeopleName, trigger: "blur", required: false}]
       }
     };
   },

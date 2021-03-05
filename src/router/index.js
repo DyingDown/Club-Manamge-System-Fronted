@@ -82,6 +82,11 @@ const router = new VueRouter({
                     path: '/clubmanagement',
                     component: () =>
                         import ("../views/common/ClubManagement.vue")
+                },
+                {
+                    path: '/myclubs',
+                    component: () =>
+                        import ("../views/common/MyClubs.vue")
                 }
             ]
 
