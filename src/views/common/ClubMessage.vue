@@ -79,6 +79,18 @@ export default {
       title: ""
     };
   },
+  beforeRouteEnter (to, from, next) {
+    console.log(to)
+    console.log(from)
+    console.log(next);
+    next();
+  },
+  watch: {
+    '$route': {
+      handler: 'getMessages',
+      immediate: true
+    }
+  },
   methods: {
     handleEdit(index, row) {
       this.isShownContent = true;

@@ -152,7 +152,7 @@ export default {
       activeIndex: "",
       currentFunc: "UserInfo",
       userType: 3,
-      messageNum: 10,
+      messageNum: 0,
       userName: "John Doe",
       circleUrl: "",
       myClubs: []
