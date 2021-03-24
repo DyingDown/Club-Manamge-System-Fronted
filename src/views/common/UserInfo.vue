@@ -183,6 +183,7 @@ export default {
       console.log(jsonData);
       this.userInfo.avatarId = jsonData.data
       console.log("field: " + field);
+      this.imgDataUrl = 'http://localhost:8080/api/image/'+ jsonData.data;
     },
     cropUploadFail(status, field) {
       console.log("-------- upload fail --------");
